@@ -16,8 +16,8 @@ import android.widget.ListView;
 
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
-import com.cupfullofcode.choints.domain.Chore;
-import com.cupfullofcode.choints.infrastructure.SQLiteChoreRepository;
+import com.cupfullofcode.choints.domain.Reward;
+import com.cupfullofcode.choints.infrastructure.SQLiteRewardRepository;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,33 +26,33 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ChoreFragment extends Fragment {
+public class RewardFragment extends Fragment {
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
-    private SQLiteChoreRepository choresRepository = null;
+    private SQLiteRewardRepository rewardsRepository = null;
     private Child child = null;
-    private ArrayAdapter<Chore> choresAdapter = null;
+    private ArrayAdapter<Reward> rewardsAdapter = null;
 
     @Override
     public void onPause() {
-        choresRepository.close();
+        rewardsRepository.close();
         super.onPause();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        populateChoresList();
+        populateRewardsList();
     }
 
     @Override
     public void onResume() {
-        choresRepository = new SQLiteChoreRepository(getActivity());
+        rewardsRepository = new SQLiteRewardRepository(getActivity());
         try {
-            choresRepository.open();
+            rewardsRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -63,8 +63,8 @@ public class ChoreFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_add_chore) {
-            addNewChore();
+        if (id == R.id.action_add_reward) {
+            addNewReward();
             return true;
         }
 
@@ -74,11 +74,11 @@ public class ChoreFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        choresRepository = new SQLiteChoreRepository(getActivity());
+        rewardsRepository = new SQLiteRewardRepository(getActivity());
         setHasOptionsMenu(true);
 
         try {
-            choresRepository.open();
+            rewardsRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,62 +90,62 @@ public class ChoreFragment extends Fragment {
         this.child = (Child) extras.getSerializable("child");
     }
 
-    public ChoreFragment() {
+    public RewardFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_child_detail_chore, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_child_detail_reward, container, false);
 
-        choresAdapter = new ArrayAdapter<Chore>(
+        rewardsAdapter = new ArrayAdapter<Reward>(
                 getActivity(),
                 android.R.layout.simple_list_item_1,
-                new ArrayList<Chore>()
+                new ArrayList<Reward>()
         );
 
-        ListView choresListView = (ListView) rootView.findViewById(R.id.listView_chores);
-        choresListView.setAdapter(choresAdapter);
+        ListView rewardsListView = (ListView) rootView.findViewById(R.id.listView_rewards);
+        rewardsListView.setAdapter(rewardsAdapter);
 
         return rootView;
     }
 
-    protected void populateChoresList() {
-        List<Chore> chores = choresRepository.chores(child);
-        choresAdapter.setNotifyOnChange(true);
+    protected void populateRewardsList() {
+        List<Reward> rewards = rewardsRepository.rewards(child);
+        rewardsAdapter.setNotifyOnChange(true);
 
-        choresAdapter.clear();
-        for (Chore chore : chores) {
-            choresAdapter.add(chore);
+        rewardsAdapter.clear();
+        for (Reward reward : rewards) {
+            rewardsAdapter.add(reward);
         }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fragment_chore, menu);
+        inflater.inflate(R.menu.menu_fragment_reward, menu);
     }
 
-    protected void addNewChore() {
+    protected void addNewReward() {
         LayoutInflater inflater = getLayoutInflater(null);
         final View view;
-        view = inflater.inflate(R.layout.alert_add_chore, null);
+        view = inflater.inflate(R.layout.alert_add_reward, null);
 
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
         alert.setView(view);
-        alert.setTitle(R.string.add_chore);
-        alert.setMessage(R.string.add_chore_message);
+        alert.setTitle(R.string.add_reward);
+        alert.setMessage(R.string.add_reward_message);
 
         alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                EditText descriptionEditText = (EditText) view.findViewById(R.id.chore_description);
-                EditText pointsEditText = (EditText) view.findViewById(R.id.chore_points);
+                EditText descriptionEditText = (EditText) view.findViewById(R.id.reward_description);
+                EditText pointsEditText = (EditText) view.findViewById(R.id.reward_points);
 
                 String description = descriptionEditText.getText().toString();
                 long points = Integer.parseInt(pointsEditText.getText().toString());
 
-                choresRepository.add(description, points, child);
-                populateChoresList();
+                rewardsRepository.add(description, points, child);
+                populateRewardsList();
             }
         });
 

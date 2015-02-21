@@ -122,9 +122,16 @@ public class ChildDetailActivity extends ActionBarActivity implements ActionBar.
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return ChoreFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return new ChoreFragment();
+                case 1:
+                    return new RewardFragment();
+                case 2:
+                    return new RewardFragment();
+            }
+
+            return null;
         }
 
         @Override

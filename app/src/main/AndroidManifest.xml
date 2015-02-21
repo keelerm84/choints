@@ -18,7 +18,7 @@
         </activity>
         <activity
             android:name=".ui.ChildDetailActivity"
-            android:label="@string/title_activity_chores_and_habits"
+            android:label="@string/title_activity_child_detail"
             android:parentActivityName=".ui.ChildChooserActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
