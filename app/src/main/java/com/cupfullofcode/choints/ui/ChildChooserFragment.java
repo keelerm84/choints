@@ -2,6 +2,7 @@ package com.cupfullofcode.choints.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -88,11 +90,20 @@ public class ChildChooserFragment extends Fragment {
 
         childrenAdapter = new ArrayAdapter<Child>(
                 getActivity(),
-                android.R.layout.simple_list_item_1, new ArrayList<Child>()
+                android.R.layout.simple_list_item_1,
+                new ArrayList<Child>()
         );
 
         ListView childrenListView = (ListView) rootView.findViewById(R.id.listview_children);
         childrenListView.setAdapter(childrenAdapter);
+        childrenListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), ChildDetailActivity.class);
+                intent.putExtra("child", childrenAdapter.getItem(position));
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }

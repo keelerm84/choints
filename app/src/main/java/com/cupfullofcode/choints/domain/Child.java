@@ -1,6 +1,8 @@
 package com.cupfullofcode.choints.domain;
 
-public class Child {
+import java.io.Serializable;
+
+public class Child implements Serializable {
     protected long id;
     protected String name;
 

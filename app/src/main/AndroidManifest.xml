@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.ChildDetailActivity"
+            android:label="@string/title_activity_chores_and_habits"
+            android:parentActivityName=".ui.ChildChooserActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cupfullofcode.choints.ui.ChildChooserActivity" />
+        </activity>
     </application>
 
 </manifest>

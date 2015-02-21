@@ -36,7 +36,7 @@ public class SQLiteChildRepository implements ChildRepository {
         cursor = database.query(SQLiteHelper.TABLE_CHILDREN, allColumns, null, null, null, null, SQLiteHelper.CHILDREN_COLUMN_NAME, null);
 
         cursor.moveToFirst();
-        while(!cursor.isAfterLast()) {
+        while (!cursor.isAfterLast()) {
             children.add(cursorToChild(cursor));
             cursor.moveToNext();
         }

@@ -6,4 +6,16 @@
 
     <string name="add_child">Add New Child</string>
     <string name="add_child_message">Please enter the name of the child you wish to add.</string>
+    <string name="title_activity_chores_and_habits">Chores and Habits</string>
+
+    <string name="add_chore">Add Chore</string>
+    <string name="add_chore_message">Please provide the required information to add a new chore.</string>
+    <string name="chore_description">Description</string>
+    <string name="chore_points">Point Value</string>
+
+    <string name="title_chores">Chores</string>
+    <string name="title_rewards">Rewards</string>
+    <string name="title_history">History</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>
