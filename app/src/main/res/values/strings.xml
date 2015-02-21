@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Choints</string>
-    <string name="hello_world">Hello world!</string>
+
     <string name="action_settings">Settings</string>
+    <string name="action_add_child">Add Child</string>
+
+    <string name="add_child">Add New Child</string>
+    <string name="add_child_message">Please enter the name of the child you wish to add.</string>
 </resources>
