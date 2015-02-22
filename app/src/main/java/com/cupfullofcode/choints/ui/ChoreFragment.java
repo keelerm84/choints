@@ -2,14 +2,18 @@ package com.cupfullofcode.choints.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -18,27 +22,22 @@ import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.Chore;
 import com.cupfullofcode.choints.infrastructure.SQLiteChoreRepository;
+import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class ChoreFragment extends Fragment {
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
     private SQLiteChoreRepository choresRepository = null;
+    private SQLiteHistoryRepository historiesRepository = null;
     private Child child = null;
     private ArrayAdapter<Chore> choresAdapter = null;
 
     @Override
     public void onPause() {
         choresRepository.close();
+        historiesRepository.close();
         super.onPause();
     }
 
@@ -51,8 +50,11 @@ public class ChoreFragment extends Fragment {
     @Override
     public void onResume() {
         choresRepository = new SQLiteChoreRepository(getActivity());
+        historiesRepository = new SQLiteHistoryRepository(getActivity());
+
         try {
             choresRepository.open();
+            historiesRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -75,10 +77,12 @@ public class ChoreFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         choresRepository = new SQLiteChoreRepository(getActivity());
+        historiesRepository = new SQLiteHistoryRepository(getActivity());
         setHasOptionsMenu(true);
 
         try {
             choresRepository.open();
+            historiesRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -104,15 +108,65 @@ public class ChoreFragment extends Fragment {
                 new ArrayList<Chore>()
         );
 
-        ListView choresListView = (ListView) rootView.findViewById(R.id.listView_chores);
+        final ListView choresListView = (ListView) rootView.findViewById(R.id.listView_chores);
         choresListView.setAdapter(choresAdapter);
+        choresListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        choresListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            private long pendingPoints = 0;
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                Chore chore = choresAdapter.getItem(position);
+                long multiplier = checked ? 1 : -1;
+
+                pendingPoints += multiplier * chore.points();
+                mode.setTitle("Pending: " + pendingPoints);
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                pendingPoints = 0;
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.cab_confirm_chores, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.action_cancel) {
+                    mode.finish();
+                    return true;
+                } else if (item.getItemId() == R.id.action_save) {
+                    SparseBooleanArray checkedPositions = choresListView.getCheckedItemPositions();
+                    for (int i = 0; i < choresAdapter.getCount(); i++) {
+                        if (checkedPositions.get(i) == true) {
+                            Chore chore = choresAdapter.getItem(i);
+                            historiesRepository.add(chore.description(), chore.points(), child.id());
+                        }
+                    }
+
+                    mode.finish();
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        });
 
         return rootView;
     }
 
     protected void populateChoresList() {
         List<Chore> chores = choresRepository.chores(child);
-        choresAdapter.setNotifyOnChange(true);
 
         choresAdapter.clear();
         for (Chore chore : chores) {

@@ -23,15 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class RewardFragment extends Fragment {
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
     private SQLiteRewardRepository rewardsRepository = null;
     private Child child = null;
     private ArrayAdapter<Reward> rewardsAdapter = null;
@@ -112,7 +104,6 @@ public class RewardFragment extends Fragment {
 
     protected void populateRewardsList() {
         List<Reward> rewards = rewardsRepository.rewards(child);
-        rewardsAdapter.setNotifyOnChange(true);
 
         rewardsAdapter.clear();
         for (Reward reward : rewards) {

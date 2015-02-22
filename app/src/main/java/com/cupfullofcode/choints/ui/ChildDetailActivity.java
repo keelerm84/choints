@@ -128,7 +128,7 @@ public class ChildDetailActivity extends ActionBarActivity implements ActionBar.
                 case 1:
                     return new RewardFragment();
                 case 2:
-                    return new RewardFragment();
+                    return new HistoryFragment();
             }
 
             return null;

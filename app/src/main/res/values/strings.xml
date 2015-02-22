@@ -3,6 +3,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_add_child">Add Child</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
 
     <string name="add_child">Add New Child</string>
     <string name="add_child_message">Please enter the name of the child you wish to add.</string>
@@ -21,6 +23,4 @@
     <string name="title_chores">Chores</string>
     <string name="title_rewards">Rewards</string>
     <string name="title_history">History</string>
-
-    <string name="hello_world">Hello world!</string>
 </resources>
