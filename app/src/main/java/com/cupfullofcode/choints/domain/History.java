@@ -46,6 +46,6 @@ public class History implements Serializable {
 
         String type = mPoints < 0 ? "Reward" : "Chore";
         String worthOrCost = mPoints < 0 ? "costing" : "worth";
-        return "[" + date + "][" + type + "] " + mDescription + " " + worthOrCost + " " + mPoints + " points";
+        return "[" + date + "][" + type + "] " + mDescription + " " + worthOrCost + " " + Math.abs(mPoints) + " points";
     }
 }

@@ -4,12 +4,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.Reward;
+import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteRewardRepository;
 
 import java.sql.SQLException;
@@ -25,12 +29,14 @@ import java.util.List;
 
 public class RewardFragment extends Fragment {
     private SQLiteRewardRepository rewardsRepository = null;
+    private SQLiteHistoryRepository historiesRepository = null;
     private Child child = null;
     private ArrayAdapter<Reward> rewardsAdapter = null;
 
     @Override
     public void onPause() {
         rewardsRepository.close();
+        historiesRepository.close();
         super.onPause();
     }
 
@@ -43,8 +49,10 @@ public class RewardFragment extends Fragment {
     @Override
     public void onResume() {
         rewardsRepository = new SQLiteRewardRepository(getActivity());
+        historiesRepository = new SQLiteHistoryRepository(getActivity());
         try {
             rewardsRepository.open();
+            historiesRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -67,10 +75,12 @@ public class RewardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         rewardsRepository = new SQLiteRewardRepository(getActivity());
+        historiesRepository = new SQLiteHistoryRepository(getActivity());
         setHasOptionsMenu(true);
 
         try {
             rewardsRepository.open();
+            historiesRepository.open();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -96,8 +106,59 @@ public class RewardFragment extends Fragment {
                 new ArrayList<Reward>()
         );
 
-        ListView rewardsListView = (ListView) rootView.findViewById(R.id.listView_rewards);
+        final ListView rewardsListView = (ListView) rootView.findViewById(R.id.listView_rewards);
         rewardsListView.setAdapter(rewardsAdapter);
+        rewardsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        rewardsListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            private long pendingPoints = 0;
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                Reward reward = rewardsAdapter.getItem(position);
+                long multiplier = checked ? 1 : -1;
+
+                pendingPoints += multiplier * reward.points();
+                mode.setTitle("Pending: " + pendingPoints);
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                pendingPoints = 0;
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.cab_confirm_rewards, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.id.action_cancel) {
+                    mode.finish();
+                    return true;
+                } else if (item.getItemId() == R.id.action_save) {
+                    SparseBooleanArray checkedPositions = rewardsListView.getCheckedItemPositions();
+                    for (int i = 0; i < rewardsAdapter.getCount(); i++) {
+                        if (checkedPositions.get(i) == true) {
+                            Reward reward = rewardsAdapter.getItem(i);
+                            historiesRepository.add(reward.description(), -1 * reward.points(), child.id());
+                        }
+                    }
+
+                    mode.finish();
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        });
 
         return rootView;
     }

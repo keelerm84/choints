@@ -1,19 +1,27 @@
 package com.cupfullofcode.choints.domain;
 
 public class Reward {
-    protected long id;
-    protected String description;
-    protected long points;
-    protected long childId;
+    protected long mId;
+    protected String mDescription;
+    protected long mPoints;
+    protected long mChildId;
 
     public Reward(long id, String description, long points, long childId) {
-        this.id = id;
-        this.description = description;
-        this.points = points;
-        this.childId = childId;
+        mId = id;
+        mDescription = description;
+        mPoints = points;
+        mChildId = childId;
+    }
+
+    public long points() {
+        return mPoints;
+    }
+
+    public String description() {
+        return mDescription;
     }
 
     public String toString() {
-        return description + " worth " + String.valueOf(points) + " pts";
+        return mDescription + " worth " + String.valueOf(mPoints) + " pts";
     }
 }

@@ -31,7 +31,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        populatehistoriesList();
+        populateHistoriesList();
     }
 
     @Override
@@ -43,6 +43,7 @@ public class HistoryFragment extends Fragment {
             e.printStackTrace();
         }
         super.onResume();
+        populateHistoriesList();
     }
 
     @Override
@@ -80,10 +81,12 @@ public class HistoryFragment extends Fragment {
         ListView historiesListView = (ListView) rootView.findViewById(R.id.listView_histories);
         historiesListView.setAdapter(historiesAdapter);
 
+        populateHistoriesList();
+
         return rootView;
     }
 
-    protected void populatehistoriesList() {
+    protected void populateHistoriesList() {
         List<History> histories = historiesRepository.histories(child);
 
         historiesAdapter.clear();
