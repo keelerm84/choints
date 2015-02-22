@@ -1,35 +1,26 @@
 package com.cupfullofcode.choints.infrastructure;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.cupfullofcode.choints.domain.Child;
+import com.cupfullofcode.choints.domain.ChildRepository;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SQLiteChildRepository implements ChildRepository {
-    private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
 
     private String[] allColumns = {SQLiteHelper.CHILDREN_COLUMN_ID, SQLiteHelper.CHILDREN_COLUMN_NAME};
 
-    public SQLiteChildRepository(Context context) {
-        dbHelper = new SQLiteHelper(context);
-    }
-
-    public void open() throws SQLException {
-        database = dbHelper.getWritableDatabase();
-    }
-
-    public void close() {
-        dbHelper.close();
+    public SQLiteChildRepository(SQLiteHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     public List<Child> children() {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         List<Child> children = new ArrayList<Child>();
 
         Cursor cursor;
@@ -41,6 +32,7 @@ public class SQLiteChildRepository implements ChildRepository {
             cursor.moveToNext();
         }
         cursor.close();
+        database.close();
 
         return children;
     }
@@ -49,7 +41,9 @@ public class SQLiteChildRepository implements ChildRepository {
         ContentValues values = new ContentValues();
         values.put(SQLiteHelper.CHILDREN_COLUMN_NAME, name);
 
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
         long insertId = database.insert(SQLiteHelper.TABLE_CHILDREN, null, values);
+        database.close();
     }
 
     private Child cursorToChild(Cursor cursor) {

@@ -11,6 +11,7 @@ import android.widget.ListView;
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.History;
+import com.cupfullofcode.choints.domain.HistoryRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
 
 import java.sql.SQLException;
@@ -18,15 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HistoryFragment extends Fragment {
-    private SQLiteHistoryRepository historiesRepository = null;
+    private HistoryRepository historiesRepository = null;
     private Child child = null;
     private ArrayAdapter<History> historiesAdapter = null;
 
-    @Override
-    public void onPause() {
-        historiesRepository.close();
-        super.onPause();
-    }
 
     @Override
     public void onStart() {
@@ -36,12 +32,6 @@ public class HistoryFragment extends Fragment {
 
     @Override
     public void onResume() {
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
-        try {
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         super.onResume();
         populateHistoriesList();
     }
@@ -49,13 +39,6 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
-
-        try {
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         Bundle extras = getActivity().getIntent().getExtras();
 
@@ -64,7 +47,8 @@ public class HistoryFragment extends Fragment {
         this.child = (Child) extras.getSerializable("child");
     }
 
-    public HistoryFragment() {
+    public HistoryFragment(HistoryRepository historyRepository) {
+        historiesRepository = historyRepository;
     }
 
     @Override

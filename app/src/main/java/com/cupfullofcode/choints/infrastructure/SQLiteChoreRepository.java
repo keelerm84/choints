@@ -7,30 +7,23 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.Chore;
+import com.cupfullofcode.choints.domain.ChoreRepository;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SQLiteChoreRepository implements ChoreRepository {
-    private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
 
     private String[] allColumns = {SQLiteHelper.CHORES_COLUMN_ID, SQLiteHelper.CHORES_COLUMN_DESCRIPTION, SQLiteHelper.CHORES_COLUMN_POINTS, SQLiteHelper.CHORES_COLUMN_CHILD_ID};
 
-    public SQLiteChoreRepository(Context context) {
-        dbHelper = new SQLiteHelper(context);
-    }
-
-    public void open() throws SQLException {
-        database = dbHelper.getWritableDatabase();
-    }
-
-    public void close() {
-        dbHelper.close();
+    public SQLiteChoreRepository(SQLiteHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     public List<Chore> chores(Child child) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         List<Chore> chores = new ArrayList<Chore>();
 
         Cursor cursor;
@@ -42,6 +35,7 @@ public class SQLiteChoreRepository implements ChoreRepository {
             cursor.moveToNext();
         }
         cursor.close();
+        database.close();
 
         return chores;
     }
@@ -52,7 +46,9 @@ public class SQLiteChoreRepository implements ChoreRepository {
         values.put(SQLiteHelper.CHORES_COLUMN_POINTS, points);
         values.put(SQLiteHelper.CHORES_COLUMN_CHILD_ID, child.id());
 
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
         long insertId = database.insert(SQLiteHelper.TABLE_CHORES, null, values);
+        database.close();
     }
 
     private Chore cursorToChore(Cursor cursor) {

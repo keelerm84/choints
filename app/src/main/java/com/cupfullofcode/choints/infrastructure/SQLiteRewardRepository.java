@@ -7,30 +7,23 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.Reward;
+import com.cupfullofcode.choints.domain.RewardRepository;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SQLiteRewardRepository implements RewardRepository {
-    private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
 
     private String[] allColumns = {SQLiteHelper.REWARDS_COLUMN_ID, SQLiteHelper.REWARDS_COLUMN_DESCRIPTION, SQLiteHelper.REWARDS_COLUMN_POINTS, SQLiteHelper.REWARDS_COLUMN_CHILD_ID};
 
-    public SQLiteRewardRepository(Context context) {
-        dbHelper = new SQLiteHelper(context);
-    }
-
-    public void open() throws SQLException {
-        database = dbHelper.getWritableDatabase();
-    }
-
-    public void close() {
-        dbHelper.close();
+    public SQLiteRewardRepository(SQLiteHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     public List<Reward> rewards(Child child) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         List<Reward> rewards = new ArrayList<Reward>();
 
         Cursor cursor;
@@ -42,6 +35,7 @@ public class SQLiteRewardRepository implements RewardRepository {
             cursor.moveToNext();
         }
         cursor.close();
+        database.close();
 
         return rewards;
     }
@@ -52,7 +46,9 @@ public class SQLiteRewardRepository implements RewardRepository {
         values.put(SQLiteHelper.REWARDS_COLUMN_POINTS, points);
         values.put(SQLiteHelper.REWARDS_COLUMN_CHILD_ID, child.id());
 
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
         long insertId = database.insert(SQLiteHelper.TABLE_REWARDS, null, values);
+        database.close();
     }
 
     private Reward cursorToReward(Cursor cursor) {

@@ -19,7 +19,9 @@ import android.widget.ListView;
 
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
+import com.cupfullofcode.choints.domain.HistoryRepository;
 import com.cupfullofcode.choints.domain.Reward;
+import com.cupfullofcode.choints.domain.RewardRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteRewardRepository;
 
@@ -28,35 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RewardFragment extends Fragment {
-    private SQLiteRewardRepository rewardsRepository = null;
-    private SQLiteHistoryRepository historiesRepository = null;
+    private RewardRepository rewardsRepository = null;
+    private HistoryRepository historiesRepository = null;
     private Child child = null;
     private ArrayAdapter<Reward> rewardsAdapter = null;
-
-    @Override
-    public void onPause() {
-        rewardsRepository.close();
-        historiesRepository.close();
-        super.onPause();
-    }
 
     @Override
     public void onStart() {
         super.onStart();
         populateRewardsList();
-    }
-
-    @Override
-    public void onResume() {
-        rewardsRepository = new SQLiteRewardRepository(getActivity());
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
-        try {
-            rewardsRepository.open();
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        super.onResume();
     }
 
     @Override
@@ -74,16 +56,7 @@ public class RewardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        rewardsRepository = new SQLiteRewardRepository(getActivity());
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
         setHasOptionsMenu(true);
-
-        try {
-            rewardsRepository.open();
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         Bundle extras = getActivity().getIntent().getExtras();
 
@@ -92,7 +65,9 @@ public class RewardFragment extends Fragment {
         this.child = (Child) extras.getSerializable("child");
     }
 
-    public RewardFragment() {
+    public RewardFragment(RewardRepository rewardRepository, HistoryRepository historyRepository) {
+        rewardsRepository = rewardRepository;
+        historiesRepository = historyRepository;
     }
 
     @Override

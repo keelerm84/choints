@@ -12,10 +12,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cupfullofcode.choints.R;
+import com.cupfullofcode.choints.infrastructure.SQLiteChoreRepository;
+import com.cupfullofcode.choints.infrastructure.SQLiteHelper;
+import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
+import com.cupfullofcode.choints.infrastructure.SQLiteRewardRepository;
 
 import java.util.Locale;
 
 public class ChildDetailActivity extends ActionBarActivity implements ActionBar.TabListener {
+    private SQLiteHelper dbHelper;
+    private SQLiteHistoryRepository historyRepository;
+    private SQLiteChoreRepository choreRepository;
+    private SQLiteRewardRepository rewardRepository;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -34,6 +42,11 @@ public class ChildDetailActivity extends ActionBarActivity implements ActionBar.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        dbHelper = new SQLiteHelper(this);
+        historyRepository = new SQLiteHistoryRepository(dbHelper);
+        choreRepository = new SQLiteChoreRepository(dbHelper);
+        rewardRepository = new SQLiteRewardRepository(dbHelper);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child_detail);
 
@@ -124,11 +137,11 @@ public class ChildDetailActivity extends ActionBarActivity implements ActionBar.
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new ChoreFragment();
+                    return new ChoreFragment(choreRepository, historyRepository);
                 case 1:
-                    return new RewardFragment();
+                    return new RewardFragment(rewardRepository, historyRepository);
                 case 2:
-                    return new HistoryFragment();
+                    return new HistoryFragment(historyRepository);
             }
 
             return null;

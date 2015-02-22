@@ -21,6 +21,8 @@ import android.widget.ListView;
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.Chore;
+import com.cupfullofcode.choints.domain.ChoreRepository;
+import com.cupfullofcode.choints.domain.HistoryRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteChoreRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteHistoryRepository;
 
@@ -29,36 +31,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChoreFragment extends Fragment {
-    private SQLiteChoreRepository choresRepository = null;
-    private SQLiteHistoryRepository historiesRepository = null;
+    private ChoreRepository choresRepository = null;
+    private HistoryRepository historiesRepository = null;
     private Child child = null;
     private ArrayAdapter<Chore> choresAdapter = null;
-
-    @Override
-    public void onPause() {
-        choresRepository.close();
-        historiesRepository.close();
-        super.onPause();
-    }
 
     @Override
     public void onStart() {
         super.onStart();
         populateChoresList();
-    }
-
-    @Override
-    public void onResume() {
-        choresRepository = new SQLiteChoreRepository(getActivity());
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
-
-        try {
-            choresRepository.open();
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        super.onResume();
     }
 
     @Override
@@ -76,16 +57,7 @@ public class ChoreFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        choresRepository = new SQLiteChoreRepository(getActivity());
-        historiesRepository = new SQLiteHistoryRepository(getActivity());
         setHasOptionsMenu(true);
-
-        try {
-            choresRepository.open();
-            historiesRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         Bundle extras = getActivity().getIntent().getExtras();
 
@@ -94,7 +66,9 @@ public class ChoreFragment extends Fragment {
         this.child = (Child) extras.getSerializable("child");
     }
 
-    public ChoreFragment() {
+    public ChoreFragment(ChoreRepository choreRepository, HistoryRepository historyRepository) {
+        choresRepository = choreRepository;
+        historiesRepository = historyRepository;
     }
 
     @Override

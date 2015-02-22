@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.cupfullofcode.choints.domain.Child;
 import com.cupfullofcode.choints.domain.History;
+import com.cupfullofcode.choints.domain.HistoryRepository;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -18,24 +19,16 @@ import java.util.Date;
 import java.util.List;
 
 public class SQLiteHistoryRepository implements HistoryRepository {
-    private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
 
     private String[] allColumns = {SQLiteHelper.HISTORIES_COLUMN_ID, SQLiteHelper.HISTORIES_COLUMN_DESCRIPTION, SQLiteHelper.HISTORIES_COLUMN_POINTS, SQLiteHelper.HISTORIES_COLUMN_CREATED_AT, SQLiteHelper.HISTORIES_COLUMN_CHILD_ID};
 
-    public SQLiteHistoryRepository(Context context) {
-        dbHelper = new SQLiteHelper(context);
-    }
-
-    public void open() throws SQLException {
-        database = dbHelper.getWritableDatabase();
-    }
-
-    public void close() {
-        dbHelper.close();
+    public SQLiteHistoryRepository(SQLiteHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     public List<History> histories(Child child) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
         List<History> histories = new ArrayList<History>();
 
         Cursor cursor;
@@ -47,6 +40,7 @@ public class SQLiteHistoryRepository implements HistoryRepository {
             cursor.moveToNext();
         }
         cursor.close();
+        database.close();
 
         return histories;
     }
@@ -60,7 +54,9 @@ public class SQLiteHistoryRepository implements HistoryRepository {
         values.put(SQLiteHelper.HISTORIES_COLUMN_CHILD_ID, childId);
         values.put(SQLiteHelper.HISTORIES_COLUMN_CREATED_AT, date);
 
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
         long insertId = database.insert(SQLiteHelper.TABLE_HISTORIES, null, values);
+        database.close();
     }
 
     private History cursorToHistory(Cursor cursor) {

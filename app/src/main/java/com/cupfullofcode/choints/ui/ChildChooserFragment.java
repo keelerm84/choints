@@ -18,6 +18,7 @@ import android.widget.ListView;
 
 import com.cupfullofcode.choints.R;
 import com.cupfullofcode.choints.domain.Child;
+import com.cupfullofcode.choints.domain.ChildRepository;
 import com.cupfullofcode.choints.infrastructure.SQLiteChildRepository;
 
 import java.sql.SQLException;
@@ -29,7 +30,11 @@ import java.util.List;
  */
 public class ChildChooserFragment extends Fragment {
     private ArrayAdapter<Child> childrenAdapter = null;
-    private SQLiteChildRepository childRepository = null;
+    private ChildRepository childRepository = null;
+
+    public ChildChooserFragment(ChildRepository childRepository) {
+        this.childRepository = childRepository;
+    }
 
     @Override
     public void onStart() {
@@ -41,12 +46,6 @@ public class ChildChooserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        childRepository = new SQLiteChildRepository(getActivity());
-        try {
-            childRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -65,22 +64,6 @@ public class ChildChooserFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.menu_fragment_child_chooser, menu);
-    }
-
-    @Override
-    public void onResume() {
-        try {
-            childRepository.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        childRepository.close();
-        super.onPause();
     }
 
     @Override

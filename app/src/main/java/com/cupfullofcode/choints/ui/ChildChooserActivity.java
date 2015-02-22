@@ -6,17 +6,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cupfullofcode.choints.R;
+import com.cupfullofcode.choints.domain.ChildRepository;
+import com.cupfullofcode.choints.infrastructure.SQLiteChildRepository;
+import com.cupfullofcode.choints.infrastructure.SQLiteHelper;
 
 
 public class ChildChooserActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SQLiteHelper dbHelper = new SQLiteHelper(this);
+        ChildRepository childRepository = new SQLiteChildRepository(dbHelper);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child_chooser);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ChildChooserFragment())
+                    .add(R.id.container, new ChildChooserFragment(childRepository))
                     .commit();
         }
     }
